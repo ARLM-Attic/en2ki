@@ -67,18 +67,25 @@ Press [OK] button below to visit homepage for more information",
 
         private void btnCreate_Click(object sender, EventArgs e)
         {
+            ValidateThenStart(sender, e);
+        }
+
+        private void ValidateThenStart(object sender, EventArgs e)
+        {
             if (tbID.Text.Length == 0)
             {
                 MessageBox.Show("User ID is required", "Required: User ID", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 tbID.Focus();
                 return;
             }
-            else if (tbPW.Text.Length == 0){
+            else if (tbPW.Text.Length == 0)
+            {
                 MessageBox.Show("Password is required", "Required: Password", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 tbPW.Focus();
                 return;
             }
-            else if (tbSaveFolder.Text.Length == 0){
+            else if (tbSaveFolder.Text.Length == 0)
+            {
                 MessageBox.Show("Destination (Save To) Folder is required", "Required: Destination Folder", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 btnSaveFolder_Click(sender, e);
                 return;
@@ -259,8 +266,16 @@ Would you like to close en2ki application and open the output folder?",
             {
                 String parameter = ex.Parameter;
                 EDAMErrorCode errorCode = ex.ErrorCode;
-                statusLabel.Text = "Authentication Failed, " + parameter + ": " + errorCode;
-                MessageBox.Show(String.Format("Authentication Failed \r\n (Make sure {0} is correct)", parameter), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+                if (parameter.ToLower() == "consumerkey")
+                {
+                    MessageBox.Show(String.Format("API Key Missing. \r\n Please download latest release from homepage", parameter), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+                else
+                {
+                    statusLabel.Text = "Authentication Failed, " + parameter + ": " + errorCode;
+                    MessageBox.Show(String.Format("Authentication Failed \r\n (Make sure {0} is correct)", parameter), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             }
             return authResult;
         }
@@ -597,5 +612,7 @@ Would you like to close en2ki application and open the output folder?",
             Properties.Settings.Default.saveto = tbSaveFolder.Text;
             Properties.Settings.Default.Save();   
         }
+
+
     }
 }
