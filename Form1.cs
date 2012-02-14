@@ -11,6 +11,7 @@ using System.IO;
 using System.Xml;
 using System.Threading;
 using System.Configuration;
+using Microsoft.WindowsAPICodePack.Taskbar;
 
 using Thrift;
 using Thrift.Protocol;
@@ -26,15 +27,19 @@ namespace en2ki
     {
         String consumerKey = "";//to fill
         String consumerSecret = "";//to fill
+        TaskbarManager taskbar = TaskbarManager.Instance;
+        DirectoryInfo tempFolder;
+        string dateNow = DateTime.Now.ToString("yyyy-MM-dd");
+
+        private delegate void intDelegate(int i);
+        private delegate void boolDelegate(bool b);
+
         public Form1()
         {
             InitializeComponent();
             tbID.Text = Properties.Settings.Default.userid;
             tbSaveFolder.Text = Properties.Settings.Default.saveto;
         }
-
-        DirectoryInfo tempFolder = new DirectoryInfo(Path.GetTempPath() + "/en2ki/" + DateTime.Now.ToString("yyyyMMddHHmmss"));
-        string dateNow = DateTime.Now.ToString("yyyy-MM-dd");
 
         #region eventHandler
         private void btnSaveFolder_Click(object sender, EventArgs e)
@@ -54,7 +59,7 @@ namespace en2ki
         {
             DialogResult dlgRes = MessageBox.Show(@"
 en2ki: Evernote to Kindle
-Version: 0.1
+Version: 0.2
 Press [OK] button below to visit homepage for more information",
                  "About en2ki",
                 MessageBoxButtons.OKCancel,
@@ -67,6 +72,7 @@ Press [OK] button below to visit homepage for more information",
 
         private void btnCreate_Click(object sender, EventArgs e)
         {
+            tempFolder = new DirectoryInfo(Path.GetTempPath() + "/en2ki/" + DateTime.Now.ToString("yyyyMMddHHmmss")); 
             ValidateThenStart(sender, e);
         }
 
@@ -98,6 +104,7 @@ Press [OK] button below to visit homepage for more information",
                 return;
             }
 
+            btnCreate.Enabled = false;
             string[] inputs = new string[] { tbID.Text, tbPW.Text, tbSaveFolder.Text };
             Thread t = new Thread(new ParameterizedThreadStart(Start));
             t.Start(inputs);
@@ -114,6 +121,23 @@ Would you like to close en2ki application and open the output folder?",
             {
                 Process.Start(tbSaveFolder.Text);
                 Application.Exit();
+            }
+            else
+            {
+                EnableCreateButton(true);
+            }
+        }
+
+        private void EnableCreateButton(bool enable)
+        {
+            if (btnCreate.InvokeRequired)
+            {
+                boolDelegate bD = new boolDelegate(EnableCreateButton);
+                this.Invoke(bD, new object[] { enable });
+            }
+            else
+            {
+                btnCreate.Enabled = enable;
             }
         }
 #endregion
@@ -143,16 +167,30 @@ Would you like to close en2ki application and open the output folder?",
 
                 int noteCount = 1;
                 List<Entity.Notebook> enNotebooks;
-                try
+                try//get data
                 {
                     enNotebooks = ReadEvernote(edamBaseUrl, authResult);
-                    noteCount = GetNoteCount(enNotebooks);
                 }
                 catch (Exception ex)
                 {
                     MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
+
+                if (rdoExportSelected.Checked)
+                {
+                    NotebookSelection nbSelect = new NotebookSelection();
+                    nbSelect.ShowDialog(enNotebooks);
+                    enNotebooks = nbSelect.nbListKeep;
+                    if (enNotebooks.Count == 0)
+                    {
+                        MessageBox.Show("There were no notebooks selected and will stop processing.", "Notebooks Not Selected", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        EnableCreateButton(true);
+                        return;
+                    }
+                }
+
+                noteCount = GetNoteCount(enNotebooks);//max value to loop creating records/note files
 
                 try
                 {
@@ -239,12 +277,6 @@ Would you like to close en2ki application and open the output folder?",
         }
 
         #region processor
-        /// <summary>
-        /// create NCX file (Navigation Control file for XML applications)
-        /// </summary>
-        /// <param name="enNotebooks"></param>
-        /// <param name="tempFolder"></param>
-        /// <returns></returns>
         private bool VerifyEDAM(UserStore.Client userStore)
         {
             bool versionOK =
@@ -299,10 +331,12 @@ Would you like to close en2ki application and open the output folder?",
 
             foreach (Notebook notebook in notebooks)
             {
-                //if (enNotebooks.Count > 5) return enNotebooks;//debug
+                //if (enNotebooks.Count >= 3) return enNotebooks;//debug
                 Entity.Notebook enNotebook = new Entity.Notebook();
                 enNotebook.Name = notebook.Stack + " " + notebook.Name;
-                UpdateProgress(1 + Convert.ToInt16((Convert.ToDouble(enNotebooks.Count) / Convert.ToDouble(notebooks.Count)) * 80), "Reading (" + (enNotebooks.Count + 1) + "/" + notebooks.Count + "): " + enNotebook.Name);
+                int intProgress = 1 + Convert.ToInt16((Convert.ToDouble(enNotebooks.Count) / Convert.ToDouble(notebooks.Count)) * 80);
+                string strProgress = "Reading (" + (enNotebooks.Count + 1) + "/" + notebooks.Count + "): " + enNotebook.Name;
+                UpdateProgress(intProgress, strProgress);
 
                 NoteFilter nf = new NoteFilter();
                 nf.NotebookGuid = notebook.Guid;
@@ -310,23 +344,20 @@ Would you like to close en2ki application and open the output folder?",
                 NoteList nl = noteStore.findNotes(authToken, nf, 0, 500);
                 foreach (Note note in nl.Notes)
                 {
+                    UpdateProgress(intProgress, strProgress + ": " + note.Title);
                     Entity.Note enNote = new Entity.Note();
                     enNote.Title = note.Title;
                     enNote.ShortDateString = note.Updated.ToString();
 
-                    Console.WriteLine("  " + note.Title + ": ");
-                    string enmlContent = noteStore.getNoteContent(authToken, note.Guid);
-                    enmlContent = enmlContent.Replace("\r\n", "");
-                    enmlContent = enmlContent.Replace("<!DOCTYPE en-note SYSTEM \"http://xml.evernote.com/pub/enml2.dtd\">", "");
-                    enmlContent = enmlContent.Replace("&nbsp;", " ");
-                    enmlContent = enmlContent.Replace("&", "&amp;");
+                    string enmlContent = filterTextForXmlLoad(noteStore.getNoteContent(authToken, note.Guid));
                     {
                         XmlDocument xDoc = new XmlDocument();
                         xDoc.LoadXml(enmlContent);
                         XmlNode xn = xDoc.SelectSingleNode("en-note");
                         enNote.Text = xn.InnerText;
-                        enNote.Xml = xn.InnerXml.Replace("<span> </span>", " ");
-                        enNote.Xml = xn.InnerXml.Replace("<img style=\"cursor: default; vertical-align: middle;\" />", " ");
+                        string content = xn.InnerXml.Replace("<img style=\"cursor: default; vertical-align: middle;\" />", " ").Replace("<span> </span>", " ");
+                        enNote.Xml = System.Web.HttpUtility.HtmlDecode(content);
+                        enNote.Xml = content;
                     }
 
                     if (enNotebook.Notes == null)
@@ -344,10 +375,25 @@ Would you like to close en2ki application and open the output folder?",
             return enNotebooks;
         }
 
+        private static string filterTextForXmlLoad(string enmlContent)
+        {
+            enmlContent = enmlContent.Replace("\r\n", "");//causes unexpected line breaks to parse xml lines
+            enmlContent = enmlContent.Replace("<!DOCTYPE en-note SYSTEM \"http://xml.evernote.com/pub/enml2.dtd\">", ""); //slows down app for doc validation
+            enmlContent = enmlContent.Replace("&nbsp;", "&#160;");//http://changelog.ca/log/2006/06/12/making_nbsp_work_with_xml_rss_and_atom
+
+            return enmlContent;
+        }
+
+        /// <summary>
+        /// create NCX file (Navigation Control file for XML applications)
+        /// </summary>
+        /// <param name="enNotebooks"></param>
+        /// <param name="tempFolder"></param>
+        /// <returns></returns>
         private void CreateNCX(List<Entity.Notebook> enNotebooks)
         {
             int noteCount = 1;
-            using (System.IO.StreamWriter file = new System.IO.StreamWriter(tempFolder + "/nav-contents.ncx"))
+            using (System.IO.StreamWriter file = new System.IO.StreamWriter(tempFolder + "/nav-contents.ncx", false, Encoding.UTF8))
             {
                 file.WriteLine(
 @"<?xml version='1.0' encoding='utf-8' ?>
@@ -382,7 +428,7 @@ Would you like to close en2ki application and open the output folder?",
                     {
                         foreach (Entity.Note n in nb.Notes)
                         {
-                            string desc = n.Text;
+                            string desc = System.Web.HttpUtility.HtmlEncode(n.Text);
                             if (desc.Length > 20)
                             {
                                 desc = desc.Substring(0, 20) + "...";
@@ -420,7 +466,7 @@ Would you like to close en2ki application and open the output folder?",
         {
             int noteCount = 1;
             //create content.html
-            using (System.IO.StreamWriter file = new System.IO.StreamWriter(tempFolder + "/contents.html"))
+            using (System.IO.StreamWriter file = new System.IO.StreamWriter(tempFolder + "/contents.html", false, Encoding.UTF8))
             {
                 file.WriteLine(
 @"<head><meta http-equiv='Content-Type' content='text/html;charset=UTF-8' /></head>
@@ -467,7 +513,7 @@ Would you like to close en2ki application and open the output folder?",
                 {
                     foreach (Entity.Note n in nb.Notes)
                     {
-                        using (System.IO.StreamWriter file = new System.IO.StreamWriter(tempFolder + "/" + noteCount.ToString() + @".html"))
+                        using (System.IO.StreamWriter file = new System.IO.StreamWriter(tempFolder + "/" + noteCount.ToString() + @".html", false, Encoding.UTF8))
                         {
                             file.WriteLine(
 @"<head><meta http-equiv='Content-Type' content='text/html;charset=UTF-8' /></head><body><h1>" + n.Title + "</h1>" + n.Xml + @"</body>
@@ -482,7 +528,7 @@ Would you like to close en2ki application and open the output folder?",
         private void CreateOPF(int noteCount)
         {
             //create opf files
-            using (System.IO.StreamWriter file = new System.IO.StreamWriter(tempFolder + "/en2ki.opf"))
+            using (System.IO.StreamWriter file = new System.IO.StreamWriter(tempFolder + "/en2ki.opf", false, Encoding.UTF8))
             {
                 file.WriteLine(
 @"<?xml version='1.0' encoding='utf-8'?>
@@ -492,11 +538,11 @@ Would you like to close en2ki application and open the output folder?",
       <dc:title>en2ki.</dc:title>
       <dc:language>en-us</dc:language>
       <meta content='cover-image' name='cover'/>
-      <dc:creator>en2ki</dc:creator>
-      <dc:publisher>en2ki</dc:publisher>
-      <dc:subject>News</dc:subject>
+      <dc:creator>en2ki </dc:creator>
+      <dc:publisher>en2ki </dc:publisher>
+      <dc:subject>en2ki </dc:subject>
       <dc:date>" + dateNow + @"</dc:date>
-      <dc:description>Evernote to Kindle 0.1</dc:description>
+      <dc:description></dc:description>
     </dc-metadata>
     <x-metadata>
       <output content-type='application/x-mobipocket-subscription-magazine' encoding='utf-8'/>
@@ -584,11 +630,12 @@ Would you like to close en2ki application and open the output folder?",
             }
             return noteCount;
         }
-        private delegate void intDelegate(int i);
+
         private void UpdateProgress(string text)
         {
             statusLabel.Text = text;
         }
+
         private void UpdateProgress(int value, string text)
         {
             statusLabel.Text = value + "% " + text;
@@ -601,7 +648,11 @@ Would you like to close en2ki application and open the output folder?",
                 intDelegate id = new intDelegate(UpdateProgress);
                 this.Invoke(id, new object[] { value });
             }
-            statusProgress.ProgressBar.Value = value;
+            else
+            {
+                statusProgress.ProgressBar.Value = value;
+            }
+            taskbar.SetProgressValue(value, 100);
         }
 
         #endregion
@@ -612,7 +663,5 @@ Would you like to close en2ki application and open the output folder?",
             Properties.Settings.Default.saveto = tbSaveFolder.Text;
             Properties.Settings.Default.Save();   
         }
-
-
     }
 }
