@@ -33,8 +33,8 @@
             this.label2 = new System.Windows.Forms.Label();
             this.tbID = new System.Windows.Forms.TextBox();
             this.tbPW = new System.Windows.Forms.TextBox();
-            this.gbEvernote = new System.Windows.Forms.GroupBox();
-            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.gbEvernoteLogin = new System.Windows.Forms.GroupBox();
+            this.gbSaveTo = new System.Windows.Forms.GroupBox();
             this.btnSaveFolder = new System.Windows.Forms.Button();
             this.tbSaveFolder = new System.Windows.Forms.TextBox();
             this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
@@ -47,14 +47,14 @@
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.btnCreate = new System.Windows.Forms.Button();
-            this.groupBox2 = new System.Windows.Forms.GroupBox();
-            this.rdoExportAll = new System.Windows.Forms.RadioButton();
+            this.gbExport = new System.Windows.Forms.GroupBox();
             this.rdoExportSelected = new System.Windows.Forms.RadioButton();
-            this.gbEvernote.SuspendLayout();
-            this.groupBox1.SuspendLayout();
+            this.rdoExportAll = new System.Windows.Forms.RadioButton();
+            this.gbEvernoteLogin.SuspendLayout();
+            this.gbSaveTo.SuspendLayout();
             this.status.SuspendLayout();
             this.menuStrip1.SuspendLayout();
-            this.groupBox2.SuspendLayout();
+            this.gbExport.SuspendLayout();
             this.SuspendLayout();
             // 
             // label1
@@ -90,29 +90,29 @@
             this.tbPW.Size = new System.Drawing.Size(130, 20);
             this.tbPW.TabIndex = 3;
             // 
-            // gbEvernote
+            // gbEvernoteLogin
             // 
-            this.gbEvernote.Controls.Add(this.label1);
-            this.gbEvernote.Controls.Add(this.tbPW);
-            this.gbEvernote.Controls.Add(this.label2);
-            this.gbEvernote.Controls.Add(this.tbID);
-            this.gbEvernote.Location = new System.Drawing.Point(10, 30);
-            this.gbEvernote.Name = "gbEvernote";
-            this.gbEvernote.Size = new System.Drawing.Size(200, 77);
-            this.gbEvernote.TabIndex = 4;
-            this.gbEvernote.TabStop = false;
-            this.gbEvernote.Text = "Evernote Login";
+            this.gbEvernoteLogin.Controls.Add(this.label1);
+            this.gbEvernoteLogin.Controls.Add(this.tbPW);
+            this.gbEvernoteLogin.Controls.Add(this.label2);
+            this.gbEvernoteLogin.Controls.Add(this.tbID);
+            this.gbEvernoteLogin.Location = new System.Drawing.Point(10, 30);
+            this.gbEvernoteLogin.Name = "gbEvernoteLogin";
+            this.gbEvernoteLogin.Size = new System.Drawing.Size(200, 77);
+            this.gbEvernoteLogin.TabIndex = 4;
+            this.gbEvernoteLogin.TabStop = false;
+            this.gbEvernoteLogin.Text = "Evernote Login";
             // 
-            // groupBox1
+            // gbSaveTo
             // 
-            this.groupBox1.Controls.Add(this.btnSaveFolder);
-            this.groupBox1.Controls.Add(this.tbSaveFolder);
-            this.groupBox1.Location = new System.Drawing.Point(216, 30);
-            this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(200, 77);
-            this.groupBox1.TabIndex = 5;
-            this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "Save To";
+            this.gbSaveTo.Controls.Add(this.btnSaveFolder);
+            this.gbSaveTo.Controls.Add(this.tbSaveFolder);
+            this.gbSaveTo.Location = new System.Drawing.Point(216, 30);
+            this.gbSaveTo.Name = "gbSaveTo";
+            this.gbSaveTo.Size = new System.Drawing.Size(200, 77);
+            this.gbSaveTo.TabIndex = 5;
+            this.gbSaveTo.TabStop = false;
+            this.gbSaveTo.Text = "Save To";
             // 
             // btnSaveFolder
             // 
@@ -140,7 +140,7 @@
             this.statusLabel});
             this.status.Location = new System.Drawing.Point(0, 115);
             this.status.Name = "status";
-            this.status.Size = new System.Drawing.Size(721, 22);
+            this.status.Size = new System.Drawing.Size(653, 22);
             this.status.SizingGrip = false;
             this.status.TabIndex = 6;
             // 
@@ -163,7 +163,7 @@
             this.helpToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(721, 24);
+            this.menuStrip1.Size = new System.Drawing.Size(653, 24);
             this.menuStrip1.TabIndex = 7;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -193,14 +193,14 @@
             // aboutToolStripMenuItem
             // 
             this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
-            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(107, 22);
             this.aboutToolStripMenuItem.Text = "About";
             this.aboutToolStripMenuItem.Click += new System.EventHandler(this.aboutToolStripMenuItem_Click);
             // 
             // btnCreate
             // 
             this.btnCreate.BackColor = System.Drawing.SystemColors.ButtonFace;
-            this.btnCreate.Location = new System.Drawing.Point(629, 30);
+            this.btnCreate.Location = new System.Drawing.Point(559, 30);
             this.btnCreate.Name = "btnCreate";
             this.btnCreate.Size = new System.Drawing.Size(86, 77);
             this.btnCreate.TabIndex = 9;
@@ -208,16 +208,26 @@
             this.btnCreate.UseVisualStyleBackColor = false;
             this.btnCreate.Click += new System.EventHandler(this.btnCreate_Click);
             // 
-            // groupBox2
+            // gbExport
             // 
-            this.groupBox2.Controls.Add(this.rdoExportSelected);
-            this.groupBox2.Controls.Add(this.rdoExportAll);
-            this.groupBox2.Location = new System.Drawing.Point(423, 30);
-            this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(200, 77);
-            this.groupBox2.TabIndex = 10;
-            this.groupBox2.TabStop = false;
-            this.groupBox2.Text = "Export";
+            this.gbExport.Controls.Add(this.rdoExportSelected);
+            this.gbExport.Controls.Add(this.rdoExportAll);
+            this.gbExport.Location = new System.Drawing.Point(423, 30);
+            this.gbExport.Name = "gbExport";
+            this.gbExport.Size = new System.Drawing.Size(130, 77);
+            this.gbExport.TabIndex = 10;
+            this.gbExport.TabStop = false;
+            this.gbExport.Text = "Export";
+            // 
+            // rdoExportSelected
+            // 
+            this.rdoExportSelected.AutoSize = true;
+            this.rdoExportSelected.Location = new System.Drawing.Point(7, 44);
+            this.rdoExportSelected.Name = "rdoExportSelected";
+            this.rdoExportSelected.Size = new System.Drawing.Size(122, 17);
+            this.rdoExportSelected.TabIndex = 1;
+            this.rdoExportSelected.Text = "Selected Notebooks";
+            this.rdoExportSelected.UseVisualStyleBackColor = true;
             // 
             // rdoExportAll
             // 
@@ -231,28 +241,18 @@
             this.rdoExportAll.Text = "All Notebooks";
             this.rdoExportAll.UseVisualStyleBackColor = true;
             // 
-            // rdoExportSelected
-            // 
-            this.rdoExportSelected.AutoSize = true;
-            this.rdoExportSelected.Location = new System.Drawing.Point(7, 44);
-            this.rdoExportSelected.Name = "rdoExportSelected";
-            this.rdoExportSelected.Size = new System.Drawing.Size(122, 17);
-            this.rdoExportSelected.TabIndex = 1;
-            this.rdoExportSelected.Text = "Selected Notebooks";
-            this.rdoExportSelected.UseVisualStyleBackColor = true;
-            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.Control;
-            this.ClientSize = new System.Drawing.Size(721, 137);
-            this.Controls.Add(this.groupBox2);
+            this.ClientSize = new System.Drawing.Size(653, 137);
+            this.Controls.Add(this.gbExport);
             this.Controls.Add(this.btnCreate);
             this.Controls.Add(this.status);
             this.Controls.Add(this.menuStrip1);
-            this.Controls.Add(this.groupBox1);
-            this.Controls.Add(this.gbEvernote);
+            this.Controls.Add(this.gbSaveTo);
+            this.Controls.Add(this.gbEvernoteLogin);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this.menuStrip1;
@@ -262,16 +262,16 @@
             this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
             this.Text = "en2ki ";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
-            this.gbEvernote.ResumeLayout(false);
-            this.gbEvernote.PerformLayout();
-            this.groupBox1.ResumeLayout(false);
-            this.groupBox1.PerformLayout();
+            this.gbEvernoteLogin.ResumeLayout(false);
+            this.gbEvernoteLogin.PerformLayout();
+            this.gbSaveTo.ResumeLayout(false);
+            this.gbSaveTo.PerformLayout();
             this.status.ResumeLayout(false);
             this.status.PerformLayout();
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
-            this.groupBox2.ResumeLayout(false);
-            this.groupBox2.PerformLayout();
+            this.gbExport.ResumeLayout(false);
+            this.gbExport.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -283,8 +283,8 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.TextBox tbID;
         private System.Windows.Forms.TextBox tbPW;
-        private System.Windows.Forms.GroupBox gbEvernote;
-        private System.Windows.Forms.GroupBox groupBox1;
+        private System.Windows.Forms.GroupBox gbEvernoteLogin;
+        private System.Windows.Forms.GroupBox gbSaveTo;
         private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog1;
         private System.Windows.Forms.StatusStrip status;
         private System.Windows.Forms.MenuStrip menuStrip1;
@@ -297,7 +297,7 @@
         private System.Windows.Forms.Button btnCreate;
         private System.Windows.Forms.ToolStripProgressBar statusProgress;
         private System.Windows.Forms.ToolStripStatusLabel statusLabel;
-        private System.Windows.Forms.GroupBox groupBox2;
+        private System.Windows.Forms.GroupBox gbExport;
         private System.Windows.Forms.RadioButton rdoExportSelected;
         private System.Windows.Forms.RadioButton rdoExportAll;
     }

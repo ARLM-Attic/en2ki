@@ -31,7 +31,5 @@ namespace en2ki
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new Form1());
         }
-
-
     }
 }

@@ -6,7 +6,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
-using Entity;
+using en2ki.Entity;
 
 namespace en2ki
 {
@@ -43,24 +43,7 @@ namespace en2ki
         {
             if (cbNotebookList.CheckedItems.Count > 0)
             {
-                for (int i = 0; i < cbNotebookList.CheckedItems.Count; i++)
-                {
-                    Notebook nb = new Notebook();
-                    nb.Name = cbNotebookList.CheckedItems[i].ToString();
-                    nbListKeep.Add(nb);
-                }
-
-                foreach (Notebook nbInc in nbListIncoming)
-                {
-                    foreach (Notebook nbKeep in nbListKeep)
-                    {
-                        if (nbKeep.Name == nbInc.Name)
-                        {
-                            nbKeep.Notes = nbInc.Notes;
-                        }
-                    }
-                }
-
+                CopyNotebooks();
                 this.Close();
             }
             else
@@ -69,5 +52,25 @@ namespace en2ki
             }
         }
 
+        private void CopyNotebooks()
+        {
+            for (int i = 0; i < cbNotebookList.CheckedItems.Count; i++)
+            {
+                Notebook nb = new Notebook();
+                nb.Name = cbNotebookList.CheckedItems[i].ToString();
+                nbListKeep.Add(nb);
+            }
+
+            foreach (Notebook nbInc in nbListIncoming)
+            {
+                foreach (Notebook nbKeep in nbListKeep)
+                {
+                    if (nbKeep.Name == nbInc.Name)
+                    {
+                        nbKeep.Guid = nbInc.Guid;
+                    }
+                }
+            }
+        }
     }
 }
