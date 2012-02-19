@@ -25,8 +25,8 @@ namespace en2ki
 {
     public partial class Form1 : Form
     {
-        string consumerKey = "";//to fill
-        string consumerSecret = "";//to fill
+        string consumerKey = "";
+        string consumerSecret = "";
 
         TaskbarManager taskbar = TaskbarManager.Instance;
         DirectoryInfo tempFolder;
@@ -61,7 +61,7 @@ namespace en2ki
         {
             DialogResult dlgRes = MessageBox.Show(@"
 en2ki: Evernote to Kindle
-Version: 0.2.1
+Version: 0.2.2
 Press [OK] button below to visit homepage for more information",
                  "About en2ki",
                 MessageBoxButtons.OKCancel,

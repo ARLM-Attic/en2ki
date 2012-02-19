@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml;
+using System.Web;
 
 namespace en2ki
 {
@@ -61,7 +62,7 @@ namespace en2ki
                     {
                         foreach (Entity.Note n in nb.Notes)
                         {
-                            string desc = System.Web.HttpUtility.HtmlEncode(n.Text);
+                            string desc = HttpUtility.HtmlEncode(n.Text);
                             if (desc.Length > 20)
                             {
                                 desc = desc.Substring(0, 20) + "...";
@@ -70,7 +71,7 @@ namespace en2ki
                             file.WriteLine(
 @"                   <navPoint class='article' id='item-" + noteCount.ToString() + @"' playOrder='" + noteCount.ToString() + @"' >
                       <navLabel>
-                        <text>" + n.Title + @"</text>
+                        <text>" + HttpUtility.HtmlEncode(n.Title) + @"</text>
                       </navLabel>
                       <content src='" + noteCount.ToString() + @".html'/>
                       <mbp:meta name='description'>" + desc + @"</mbp:meta>
@@ -120,7 +121,7 @@ namespace en2ki
                         {
                             file.WriteLine(
 @"      <li>
-        <a href='" + noteCount.ToString() + @".html'>" + n.Title + @"</a>
+        <a href='" + noteCount.ToString() + @".html'>" + HttpUtility.HtmlEncode(n.Title) + @"</a>
       </li>
                     ");
                             noteCount++;
@@ -149,7 +150,7 @@ namespace en2ki
                         using (System.IO.StreamWriter file = new System.IO.StreamWriter(_tempFolder + "/" + noteCount.ToString() + @".html", false, Encoding.UTF8))
                         {
                             file.WriteLine(
-@"<head><meta http-equiv='Content-Type' content='text/html;charset=UTF-8' /></head><body><h1>" + n.Title + "</h1>" + n.Xml + @"</body>
+@"<head><meta http-equiv='Content-Type' content='text/html;charset=UTF-8' /></head><body><h1>" + HttpUtility.HtmlEncode(n.Title) + "</h1>" + n.Xml + @"</body>
                         ");
                         }
                         noteCount++;
